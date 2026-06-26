@@ -6,24 +6,20 @@ Interactive 16-week strength training program with adaptive progression, built a
 
 ## Features
 
-- **16-week progressive program** across 4 phases (Foundation → Building → Strength → Performance)
+- **16-week progressive program** across 4 phases (Foundation, Building, Strength, Performance)
 - **3 training days/week** — Lower Body + Core, Upper Body Push/Pull, Hybrid day
 - **Adaptive difficulty** — rate each workout 1-5, get adjustment recommendations for the following week
-- **Google Sheets sync** — workout data syncs across all devices via a Google Sheets backend
+- **Firebase real-time sync** — workout data syncs automatically across all devices
 - **Offline capable** — falls back to browser localStorage when offline
 - **Planet Fitness compatible** — machines, dumbbells, Smith machine, cables only
 - **Exercise guide** with form instructions, warm-up, and cool-down routines
 
-## Google Sheets Sync Setup
+## Usage
 
-1. Open your [Google Sheet](https://docs.google.com/spreadsheets/d/1ofvUHiTohMHF8hlf3KV4eu8t1ei0NAstAPpiP9QbQ9E/edit)
-2. Go to **Extensions > Apps Script**
-3. Delete any existing code and paste the contents of `google_apps_script.js`
-4. Click **Deploy > New deployment > Web app**
-5. Set "Execute as" = **Me**, "Who has access" = **Anyone**
-6. Copy the Web App URL
-7. Open the dashboard, expand "Google Sheets Setup" at the bottom, paste the URL, and click **Save & Connect**
+Open `index.html` in any browser, or visit the live GitHub Pages link above. Data syncs automatically via Firebase — no setup needed.
 
-## Local Development
+## Data
 
-Just open `index.html` in any browser. No build step or server required.
+All workout data is stored in Firebase Realtime Database and syncs in real-time across devices. A local copy is kept in the browser's localStorage as a fallback.
+
+Use the **Export JSON** button to download a backup, or **Import JSON** to restore from a backup file.

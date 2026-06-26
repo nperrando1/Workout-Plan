@@ -443,6 +443,8 @@
     .schedule-cell { padding: 6px 4px; min-height: 55px; }
   }
 </style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -477,7 +479,7 @@
   <!-- Sync Status -->
   <div class="sync-bar" id="syncBar">
     <span class="sync-dot offline" id="syncDot"></span>
-    <span id="syncStatus">Connecting to Google Sheets...</span>
+    <span id="syncStatus">Connecting to Firebase...</span>
   </div>
 
   <!-- Tabs -->
@@ -609,29 +611,6 @@
     <button class="btn btn-secondary" onclick="exportData()">Export JSON</button>
     <button class="btn btn-secondary" onclick="importData()">Import JSON</button>
     <button class="btn btn-danger" onclick="resetAll()">Reset All Data</button>
-  </div>
-  <div style="text-align:center;margin-bottom:16px;">
-    <details style="display:inline-block;text-align:left;">
-      <summary style="font-size:12px;color:var(--text-muted);cursor:pointer;">Google Sheets Setup</summary>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:8px;max-width:600px;font-size:13px;color:var(--text-muted);line-height:1.8;">
-        <p>To enable cross-device sync:</p>
-        <ol style="padding-left:20px;">
-          <li>Open your <a href="https://docs.google.com/spreadsheets/d/1ofvUHiTohMHF8hlf3KV4eu8t1ei0NAstAPpiP9QbQ9E/edit" target="_blank" style="color:var(--accent);">Google Sheet</a></li>
-          <li>Go to <strong style="color:var(--text);">Extensions > Apps Script</strong></li>
-          <li>Paste the Apps Script code (in your <code>google_apps_script.js</code> file)</li>
-          <li>Click <strong style="color:var(--text);">Deploy > New deployment > Web app</strong></li>
-          <li>Set "Execute as" = <strong style="color:var(--text);">Me</strong>, "Who has access" = <strong style="color:var(--text);">Anyone</strong></li>
-          <li>Copy the Web App URL and paste it below</li>
-        </ol>
-        <div style="margin-top:12px;">
-          <label style="font-size:12px;text-transform:uppercase;letter-spacing:1px;">Apps Script URL:</label><br>
-          <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" 
-            style="width:100%;padding:8px 12px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:13px;margin-top:4px;"
-            value="">
-          <button class="btn btn-primary" style="margin-top:8px;padding:6px 16px;font-size:12px;" onclick="saveScriptUrl()">Save & Connect</button>
-        </div>
-      </div>
-    </details>
   </div>
   <input type="file" id="importInput" accept=".json" style="display:none" onchange="handleImport(event)">
 </div>
@@ -826,9 +805,15 @@ const PROGRAM = {
   }
 };
 
-// ========== STATE MANAGEMENT (Google Sheets + localStorage fallback) ==========
+// ========== STATE MANAGEMENT (Firebase + localStorage fallback) ==========
 const STORAGE_KEY = "strengthTrainingPlan_v1";
-const SCRIPT_URL_KEY = "strengthTrainingPlan_scriptUrl";
+
+const firebaseConfig = {
+  databaseURL: "https://workout-plan-bba64-default-rtdb.firebaseio.com"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const dbRef = db.ref("workoutState");
 
 function getDefaultState() {
   return {
@@ -854,103 +839,47 @@ function saveState() {
 }
 
 let state = loadState();
-let syncStatus = "offline"; // "connected", "offline", "syncing", "error"
-
-// ========== GOOGLE SHEETS SYNC ==========
-function getScriptUrl() {
-  return localStorage.getItem(SCRIPT_URL_KEY) || "";
-}
-
-function saveScriptUrl() {
-  const url = document.getElementById("scriptUrlInput").value.trim();
-  if (!url) {
-    showToast("Please enter a URL");
-    return;
-  }
-  localStorage.setItem(SCRIPT_URL_KEY, url);
-  showToast("URL saved — connecting...");
-  syncFromCloud();
-}
+let syncStatus = "offline";
 
 function updateSyncUI(status, message) {
   syncStatus = status;
   const dot = document.getElementById("syncDot");
   const text = document.getElementById("syncStatus");
-  dot.className = "sync-dot " + status;
-  text.textContent = message;
+  if (dot) dot.className = "sync-dot " + status;
+  if (text) text.textContent = message;
 }
 
-// Reliable Google Apps Script fetch using XMLHttpRequest.
-// XHR follows 302 redirects transparently (unlike fetch which can
-// fail on opaque cross-origin redirects). The final destination at
-// script.googleusercontent.com returns proper CORS headers.
-function gasXHR(url) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.timeout = 20000;
-    xhr.onload = function() {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          resolve(JSON.parse(xhr.responseText));
-        } catch(e) {
-          reject(new Error("Invalid JSON response"));
-        }
-      } else {
-        reject(new Error("HTTP " + xhr.status));
-      }
-    };
-    xhr.onerror = function() { reject(new Error("Network error")); };
-    xhr.ontimeout = function() { reject(new Error("Request timed out")); };
-    xhr.send();
-  });
-}
-
+// ========== FIREBASE SYNC ==========
 async function syncFromCloud() {
-  const url = getScriptUrl();
-  if (!url) {
-    updateSyncUI("offline", "Not connected — set up Google Sheets sync below");
-    return;
-  }
-
-  updateSyncUI("syncing", "Loading from Google Sheets...");
+  updateSyncUI("syncing", "Syncing with Firebase...");
 
   try {
-    const json = await gasXHR(url + "?action=load");
+    const snapshot = await dbRef.once("value");
+    const cloudState = snapshot.val();
 
-    if (json.status === "ok" && json.data) {
-      const cloudState = json.data;
-      const localJson = localStorage.getItem(STORAGE_KEY);
-      const localState = localJson ? JSON.parse(localJson) : null;
-
-      const cloudCount = Object.keys(cloudState.logs || {}).filter(k => cloudState.logs[k]?.difficulty > 0).length;
-      const localCount = localState ? Object.keys(localState.logs || {}).filter(k => localState.logs[k]?.difficulty > 0).length : 0;
+    if (cloudState && cloudState.logs) {
+      const cloudCount = Object.keys(cloudState.logs).filter(k => cloudState.logs[k]?.difficulty > 0).length;
+      const localCount = Object.keys(state.logs || {}).filter(k => state.logs[k]?.difficulty > 0).length;
 
       if (cloudCount >= localCount) {
         state = cloudState;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         renderAll();
-        updateSyncUI("connected", `Synced from Google Sheets (${new Date(json.lastUpdated).toLocaleString()})`);
       } else {
-        updateSyncUI("connected", "Connected — local data is newer, syncing up...");
         await pushToCloud();
-        renderAll();
       }
-    } else if (json.status === "empty") {
-      updateSyncUI("connected", "Connected — uploading local data to Google Sheets...");
-      await pushToCloud();
+      updateSyncUI("connected", "Synced — " + new Date().toLocaleTimeString());
     } else {
-      updateSyncUI("error", "Unexpected response from Google Sheets");
+      await pushToCloud();
+      updateSyncUI("connected", "Synced — uploaded local data");
     }
   } catch (err) {
-    console.error("Sync error:", err);
-    updateSyncUI("error", "Connection failed — check your Apps Script URL. Error: " + err.message);
+    console.error("Firebase sync error:", err);
+    updateSyncUI("error", "Sync failed: " + err.message);
   }
 }
 
 async function syncToCloud() {
-  const url = getScriptUrl();
-  if (!url) return;
   try {
     await pushToCloud();
   } catch(err) {
@@ -959,17 +888,11 @@ async function syncToCloud() {
 }
 
 async function pushToCloud() {
-  const url = getScriptUrl();
-  if (!url) return;
-
   try {
-    const stateStr = encodeURIComponent(JSON.stringify(state));
-    const json = await gasXHR(url + "?action=save&data=" + stateStr);
-    if (json.status === "saved") {
-      updateSyncUI("connected", `Synced — last save: ${new Date(json.timestamp).toLocaleString()}`);
-    }
+    await dbRef.set(state);
+    updateSyncUI("connected", "Saved — " + new Date().toLocaleTimeString());
   } catch(err) {
-    updateSyncUI("error", "Save to Google Sheets failed — data safe in browser. Error: " + err.message);
+    updateSyncUI("error", "Save failed — data safe in browser");
     throw err;
   }
 }
@@ -979,13 +902,24 @@ async function manualSync() {
   await syncFromCloud();
 }
 
-// Initialize: load script URL into input field and attempt cloud sync
-window.addEventListener("DOMContentLoaded", () => {
-  const savedUrl = getScriptUrl();
-  const urlInput = document.getElementById("scriptUrlInput");
-  if (urlInput && savedUrl) {
-    urlInput.value = savedUrl;
+// Listen for real-time changes from other devices
+dbRef.on("value", (snapshot) => {
+  const cloudState = snapshot.val();
+  if (!cloudState || !cloudState.logs) return;
+
+  const cloudCount = Object.keys(cloudState.logs).filter(k => cloudState.logs[k]?.difficulty > 0).length;
+  const localCount = Object.keys(state.logs || {}).filter(k => state.logs[k]?.difficulty > 0).length;
+
+  if (cloudCount > localCount) {
+    state = cloudState;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    renderAll();
+    updateSyncUI("connected", "Live update received — " + new Date().toLocaleTimeString());
   }
+});
+
+// Initial sync on page load
+window.addEventListener("DOMContentLoaded", () => {
   syncFromCloud();
 });
 
@@ -1175,9 +1109,8 @@ function rateDifficulty(logKey, rating, dayKey) {
 let _saveDebounceTimer = null;
 function saveStateQuiet() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  // Debounce cloud sync — wait 2 seconds of inactivity before pushing
   clearTimeout(_saveDebounceTimer);
-  _saveDebounceTimer = setTimeout(() => syncToCloud(), 2000);
+  _saveDebounceTimer = setTimeout(() => pushToCloud().catch(() => {}), 2000);
 }
 
 // ========== SCHEDULE ==========
