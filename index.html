@@ -6,24 +6,26 @@
 <title>Strength Training Plan — Phillip Richardson</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface-2: #242736;
-    --border: #2e3244;
-    --text: #e4e6f0;
-    --text-muted: #8b8fa3;
-    --accent: #F88A42;
-    --accent-dim: rgba(248,138,66,0.15);
-    --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.15);
-    --yellow: #facc15;
-    --yellow-dim: rgba(250,204,21,0.15);
-    --red: #f87171;
-    --red-dim: rgba(248,113,113,0.15);
-    --blue: #60a5fa;
-    --blue-dim: rgba(96,165,250,0.15);
-    --purple: #a78bfa;
-    --radius: 10px;
+    --bg: #141018;
+    --surface: #1e1726;
+    --surface-2: #281f32;
+    --border: #3a2d47;
+    --text: #ede6f2;
+    --text-muted: #9b8aad;
+    --accent: #e8729a;
+    --accent-dim: rgba(232,114,154,0.15);
+    --green: #8ecfa5;
+    --green-dim: rgba(142,207,165,0.15);
+    --yellow: #f0d57a;
+    --yellow-dim: rgba(240,213,122,0.15);
+    --red: #e06b7a;
+    --red-dim: rgba(224,107,122,0.15);
+    --blue: #9db8e8;
+    --blue-dim: rgba(157,184,232,0.15);
+    --purple: #c4a6f5;
+    --lavender: #b8a1d9;
+    --sage: #8ecfa5;
+    --radius: 12px;
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,6 +35,13 @@
     color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80px 80px at 10% 15%, rgba(232,114,154,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 60px 90px at 85% 8%, rgba(196,166,245,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 70px 70px at 50% 50%, rgba(142,207,165,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 90px 60px at 15% 85%, rgba(184,161,217,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 65px 85px at 90% 90%, rgba(232,114,154,0.05) 0%, transparent 70%);
+    background-attachment: fixed;
   }
   .container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
@@ -42,6 +51,16 @@
     padding: 30px 0 20px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 24px;
+    position: relative;
+  }
+  .header::before {
+    content: "\2740 \273F \2740";
+    display: block;
+    font-size: 18px;
+    letter-spacing: 12px;
+    color: var(--accent);
+    opacity: 0.5;
+    margin-bottom: 8px;
   }
   .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
   .header p { color: var(--text-muted); font-size: 14px; }
@@ -173,8 +192,8 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .badge-lower { background: var(--blue-dim); color: var(--blue); }
-  .badge-upper { background: var(--purple); background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge-lower { background: rgba(142,207,165,0.15); color: var(--sage); }
+  .badge-upper { background: rgba(196,166,245,0.15); color: var(--purple); }
   .badge-full { background: var(--accent-dim); color: var(--accent); }
   .day-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
   .chevron { transition: transform 0.2s; font-size: 18px; }
@@ -260,8 +279,8 @@
     font-size: 10px;
     padding: 2px 8px;
     border-radius: 12px;
-    background: var(--surface-2);
-    color: var(--text-muted);
+    background: rgba(184,161,217,0.15);
+    color: var(--lavender);
     display: inline-block;
     margin-top: 4px;
   }
@@ -622,7 +641,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "20-30 lb dumbbell",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"60s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "Hold one dumbbell at chest height. Sit back and down, keeping chest tall. Key lift for steep uphill power.",
+        note: "Builds the raw pushing power you need for steep uphill climbs and high-step scrambles on rocky trails.",
         guide: "Stand shoulder-width apart, hold a dumbbell vertically against your chest with both hands. Push hips back, bend knees, lower until thighs are at least parallel. Drive through heels to stand. Keep your torso upright throughout."
       },
       {
@@ -631,7 +650,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "Bar only or +10-20 lbs",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "Slight knee bend, hinge at hips, feel stretch in hamstrings. Critical for downhill control on trails.",
+        note: "Develops the hamstring and glute strength that controls your descent on steep downhills and protects your knees under load.",
         guide: "Stand in the Smith machine with feet hip-width apart. Unhook the bar at hip height. With a slight bend in your knees (keep them fixed), hinge at the hips pushing your butt back. Lower the bar along your thighs until you feel a deep hamstring stretch (mid-shin area). Squeeze glutes to return to standing."
       },
       {
@@ -640,7 +659,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "90-135 lbs",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "Feet high and wide on platform for more glute/hamstring emphasis (hiking muscles).",
+        note: "Heavy compound leg strength that translates directly to sustained power on long inclines and multi-mile elevation gains.",
         guide: "Sit in the leg press, place feet shoulder-width apart and HIGH on the platform (this targets glutes/hams more). Lower the weight until knees form ~90 degrees. Press through your heels to extend. Don't lock knees at the top."
       },
       {
@@ -649,7 +668,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight or 10-15 lb dumbbells",
         phases: {1:{sets:2,reps:"10 each leg",rest:"60s"},2:{sets:3,reps:"10 each leg",rest:"60s"},3:{sets:3,reps:"12 each leg",rest:"75s"},4:{sets:3,reps:"12 each leg",rest:"75s"}},
-        note: "Directly mimics uphill stepping. Keep torso upright, long stride.",
+        note: "The closest gym movement to actual trail hiking — builds single-leg power and the balance you need on uneven terrain.",
         guide: "Hold dumbbells at your sides. Take a big step forward, lower your back knee toward the floor until both knees form ~90 degree angles. Push off your front foot to step forward into the next lunge. Alternate legs. Keep your torso upright and core tight."
       },
       {
@@ -658,7 +677,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "Bar only or +10-20 lbs",
         phases: {1:{sets:3,reps:"15-20",rest:"45s"},2:{sets:3,reps:"15-20",rest:"45s"},3:{sets:4,reps:"12-15",rest:"45s"},4:{sets:4,reps:"12-15",rest:"45s"}},
-        note: "Use a step or plate for full range of motion. Calves are critical for steep inclines.",
+        note: "Strong calves prevent fatigue and cramping on steep inclines and give you sure footing on rocky, uneven surfaces.",
         guide: "Place the bar across your shoulders in the Smith machine. Stand on a step or plate with just the balls of your feet. Lower heels below the step for a full stretch, then rise up onto your toes as high as possible. Pause at the top for 1 second."
       },
       {
@@ -667,7 +686,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "15-25 lbs",
         phases: {1:{sets:2,reps:"12 each side",rest:"45s"},2:{sets:3,reps:"12 each side",rest:"45s"},3:{sets:3,reps:"10 each side",rest:"60s"},4:{sets:3,reps:"10 each side",rest:"60s"}},
-        note: "Rotational core strength helps with trail balance on uneven terrain.",
+        note: "Rotational core power keeps you stable when navigating roots, rocks, and off-camber trail sections with a loaded pack.",
         guide: "Set cable at highest position. Stand sideways to the machine, grab handle with both hands. Pull the cable diagonally across your body from high to low, rotating your torso. Control the weight back up. Keep arms relatively straight — the rotation comes from your core, not your arms."
       },
       {
@@ -676,7 +695,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight",
         phases: {1:{sets:2,reps:"20-30 sec",rest:"45s"},2:{sets:3,reps:"30-45 sec",rest:"45s"},3:{sets:3,reps:"45-60 sec",rest:"45s"},4:{sets:3,reps:"60 sec",rest:"45s"}},
-        note: "Foundation core stability. Squeeze glutes, don't let hips sag.",
+        note: "Builds the deep core endurance that keeps your posture solid over miles and prevents low-back fatigue on long hikes.",
         guide: "Get on your forearms and toes, body in a straight line from head to heels. Squeeze your glutes, brace your abs as if someone is about to punch your stomach, and hold. Don't let your hips sag or pike up. Breathe steadily."
       }
     ]
@@ -692,7 +711,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "Bar only or +10-20 lbs",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "Primary chest builder. Grip slightly wider than shoulders. Control the descent.",
+        note: "The foundation of a fuller, more defined chest. Develops the thick, squared-off pec look that's visible in any shirt.",
         guide: "Lie on the bench under the Smith machine. Grip the bar slightly wider than shoulder-width. Unhook and lower the bar to mid-chest with control (2-3 seconds down). Press up explosively. The Smith machine guides the bar path, so focus on squeezing your chest at the top."
       },
       {
@@ -701,7 +720,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "40-60 lbs",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"8-10",rest:"90s"}},
-        note: "Squeeze shoulder blades together at the end of each rep. Builds posture and back width.",
+        note: "Widens your back and improves posture, creating the V-taper silhouette that makes your waist look narrower.",
         guide: "Sit at the cable row station with feet on the platform, slight bend in knees. Grab the handle, sit tall with chest up. Pull the handle to your lower chest/upper abdomen, squeezing your shoulder blades together hard at the end. Slowly return to the start with arms extended. Don't round your back."
       },
       {
@@ -710,7 +729,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "15-20 lb dumbbells",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "Seated for back support. Press to full lockout. Builds the capped shoulder look.",
+        note: "Creates the rounded, capped shoulder look that broadens your frame and adds dimension to your upper body.",
         guide: "Sit on a bench with back support set to ~85 degrees (almost vertical). Hold dumbbells at shoulder height, palms facing forward. Press them up until arms are fully extended overhead. Lower back to shoulder height with control. Don't arch your lower back excessively."
       },
       {
@@ -719,7 +738,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "50-70 lbs",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"8-10",rest:"90s"}},
-        note: "Wide grip for V-taper. Pull to upper chest, lean back slightly.",
+        note: "Builds lat width for a wider V-taper — the single biggest contributor to an athletic-looking upper body.",
         guide: "Sit at the lat pulldown, grip the bar wider than shoulder-width. Lean back slightly (~15 degrees), pull the bar down to your upper chest, driving your elbows down and back. Squeeze your lats at the bottom. Control the weight back up — don't let it yank you."
       },
       {
@@ -728,7 +747,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "15-25 lb dumbbells",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"60s"},3:{sets:3,reps:"8-10",rest:"75s"},4:{sets:3,reps:"8-10",rest:"75s"}},
-        note: "Set bench to 30-45 degrees. Builds upper chest fullness.",
+        note: "Fills out the upper chest for a balanced, full look from collarbone to sternum — the area most visible in V-necks.",
         guide: "Set an adjustable bench to 30-45 degrees. Lie back with dumbbells at chest level, palms forward. Press the dumbbells up and slightly toward each other (without clanking). Lower slowly until you feel a stretch across your upper chest."
       },
       {
@@ -737,7 +756,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "15-25 lbs",
         phases: {1:{sets:3,reps:"15-20",rest:"45s"},2:{sets:3,reps:"12-15",rest:"45s"},3:{sets:3,reps:"12-15",rest:"45s"},4:{sets:3,reps:"12-15",rest:"45s"}},
-        note: "Essential for shoulder health and posture. Use rope attachment, pull to face height.",
+        note: "Balances out all the pressing work, prevents rounded shoulders, and builds the rear delt definition that makes shoulders look 3D.",
         guide: "Set cable at face height with a rope attachment. Step back to create tension. Pull the rope toward your face, splitting the rope ends to either side of your head. Squeeze your rear delts and hold for 1 second. Keep elbows high throughout the movement. Go light — this is about muscle activation, not heavy weight."
       },
       {
@@ -746,7 +765,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "10-20 lb dumbbells",
         phases: {1:{sets:2,reps:"12-15",rest:"45s"},2:{sets:3,reps:"10-12",rest:"45s"},3:{sets:3,reps:"8-10",rest:"60s"},4:{sets:3,reps:"8-10",rest:"60s"}},
-        note: "Alternate arms or do both together. Don't swing — control the weight.",
+        note: "Adds size to the bicep peak — the first muscle people notice when your sleeves are rolled up.",
         guide: "Stand with dumbbells at your sides, palms facing forward. Curl the weight up by bending at the elbow only — your upper arm should not move. Squeeze at the top, then lower slowly (3 seconds down). Don't swing your body or use momentum."
       },
       {
@@ -755,7 +774,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "20-30 lbs",
         phases: {1:{sets:2,reps:"12-15",rest:"45s"},2:{sets:3,reps:"10-12",rest:"45s"},3:{sets:3,reps:"8-10",rest:"60s"},4:{sets:3,reps:"8-10",rest:"60s"}},
-        note: "Use rope or straight bar attachment. Keep elbows pinned to sides.",
+        note: "Triceps make up two-thirds of your arm size — this is the key to arms that fill out your sleeves.",
         guide: "Attach a rope or straight bar to the high cable. Stand facing the machine, grip the attachment, pin your elbows to your sides. Push the weight down until your arms are fully extended. Squeeze your triceps at the bottom. Slowly return to the start. Your elbows should not move forward or backward."
       }
     ]
@@ -771,7 +790,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "Bar only or +10-20 lbs",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "Feet slightly forward of the bar for more quad emphasis. Go as deep as comfortable.",
+        note: "Builds quad and glute strength for powerful uphill drives and the leg endurance to keep pace on long ascents.",
         guide: "Position the bar across your upper traps. Place feet shoulder-width, slightly IN FRONT of the bar (unlike a free squat). This is safe and intentional in a Smith machine. Squat down until thighs are parallel or slightly below. Drive up through your heels."
       },
       {
@@ -780,7 +799,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight or 10-15 lb dumbbells",
         phases: {1:{sets:2,reps:"10 each leg",rest:"60s"},2:{sets:3,reps:"10 each leg",rest:"60s"},3:{sets:3,reps:"12 each leg",rest:"75s"},4:{sets:3,reps:"12 each leg",rest:"75s"}},
-        note: "The single most hiking-specific exercise. Use a sturdy bench. Drive through the top foot.",
+        note: "The single most trail-specific exercise — directly trains the stepping motion and single-leg power for climbing rocky switchbacks.",
         guide: "Hold dumbbells at your sides. Place one foot fully on a bench. Drive through that heel to step up, bringing the other foot up to the bench. Step back down with the trailing leg first. Complete all reps on one leg before switching. Don't push off the bottom foot — make the top leg do the work."
       },
       {
@@ -789,7 +808,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "40-60 lbs",
         phases: {1:{sets:3,reps:"12-15",rest:"45s"},2:{sets:3,reps:"10-12",rest:"60s"},3:{sets:3,reps:"8-10",rest:"60s"},4:{sets:4,reps:"8-10",rest:"60s"}},
-        note: "Slow controlled reps. Hamstrings protect your knees on downhill sections.",
+        note: "Strong hamstrings act as brakes on steep descents, protecting your knees from the pounding of long downhill sections.",
         guide: "Lie face down on the machine, pad behind your ankles. Curl your heels toward your glutes. Squeeze at the top for 1 second. Lower slowly (3 seconds). Don't let the weight stack slam at the bottom."
       },
       {
@@ -798,7 +817,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "10-15 lb dumbbells",
         phases: {1:{sets:3,reps:"12-15",rest:"45s"},2:{sets:3,reps:"10-12",rest:"45s"},3:{sets:3,reps:"10-12",rest:"45s"},4:{sets:4,reps:"10-12",rest:"45s"}},
-        note: "Builds shoulder width. Light weight, controlled reps. Slight lean forward.",
+        note: "The top exercise for building wider shoulders — creates the broad-shouldered frame that defines an athletic silhouette.",
         guide: "Stand with dumbbells at your sides. Lean forward slightly at the hips (~10 degrees). Raise the dumbbells out to your sides until arms are parallel to the floor (like a T). Lead with your elbows, not your hands. Lower slowly. Use lighter weight than you think — 10-15 lbs is plenty for most people starting out."
       },
       {
@@ -807,7 +826,7 @@ const PROGRAM = {
         purpose: "How this builds your physique",
         startWeight: "10-20 lbs per side",
         phases: {1:{sets:3,reps:"12-15",rest:"45s"},2:{sets:3,reps:"10-12",rest:"60s"},3:{sets:3,reps:"10-12",rest:"60s"},4:{sets:3,reps:"8-10",rest:"60s"}},
-        note: "Set cables at chest height. Slight bend in elbows. Squeeze at center.",
+        note: "Isolates the chest for deeper muscle activation and builds the inner-chest definition that pressing alone can't create.",
         guide: "Set both cables at chest height. Stand in the center with one foot forward for balance. Grab both handles, arms wide with a slight bend in elbows. Bring your hands together in front of your chest in a hugging motion. Squeeze your chest for 1 second. Open back up slowly with control."
       },
       {
@@ -816,7 +835,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "25-40 lb dumbbells",
         phases: {1:{sets:3,reps:"15-20",rest:"45s"},2:{sets:3,reps:"12-15",rest:"45s"},3:{sets:3,reps:"10-12",rest:"60s"},4:{sets:3,reps:"10-12",rest:"60s"}},
-        note: "Useful for pack carrying. Shrug straight up (not rolling). Hold at top 1 second.",
+        note: "Strengthens the upper traps that support a heavy pack on your shoulders over long miles without fatigue.",
         guide: "Hold heavy dumbbells at your sides. Shrug your shoulders straight UP toward your ears as high as possible. Hold at the top for 1 second. Lower slowly. Don't roll your shoulders — straight up and down only."
       },
       {
@@ -825,7 +844,7 @@ const PROGRAM = {
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight",
         phases: {1:{sets:2,reps:"8 each side",rest:"45s"},2:{sets:3,reps:"10 each side",rest:"45s"},3:{sets:3,reps:"12 each side",rest:"45s"},4:{sets:3,reps:"12 each side",rest:"45s"}},
-        note: "Lie on back, press lower back into floor. Extend opposite arm/leg. Anti-extension core work.",
+        note: "Trains deep core stability that keeps your spine protected and posture upright under a loaded pack over uneven ground.",
         guide: "Lie on your back with arms extended toward the ceiling and knees bent at 90 degrees (shins parallel to floor). Press your lower back hard into the floor — this is the key. Slowly extend your right arm overhead and left leg out straight, hovering just above the floor. Return to start and repeat on the other side. Your lower back must stay glued to the floor throughout."
       }
     ]
