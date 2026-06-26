@@ -455,20 +455,12 @@
 
   <div class="profile-card">
     <div class="profile-stat">
-      <div class="label">Height</div>
-      <div class="value">5'10"</div>
-    </div>
-    <div class="profile-stat">
       <div class="label">Starting Weight</div>
       <div class="value">268.5 lbs</div>
     </div>
     <div class="profile-stat">
-      <div class="label">Primary Goal</div>
-      <div class="value" style="font-size:15px;">Hiking Strength</div>
-    </div>
-    <div class="profile-stat">
-      <div class="label">Secondary Goal</div>
-      <div class="value" style="font-size:15px;">Upper Body</div>
+      <div class="label">Current Weight</div>
+      <div class="value" id="currentWeightDisplay">—</div>
     </div>
     <div class="profile-stat">
       <div class="label">Current Week</div>
@@ -1005,6 +997,17 @@ function renderWorkouts() {
           </div>
         </div>` : ''}
 
+        ${dayKey === "A" ? `
+        <div class="weigh-in-section" id="weighin-${dayKey}" style="display:none;padding:14px 20px;border-top:1px solid var(--border);background:var(--surface-2);">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span style="font-size:14px;font-weight:600;">Weigh-in:</span>
+            <input type="number" class="log-input" id="weighinInput-${week}" placeholder="lbs" step="0.5" min="0"
+              style="width:80px;" value="${(log.bodyWeight || '')}"
+              onchange="logWeighIn('${logKey}', this.value)">
+            <span style="font-size:13px;color:var(--text-muted);">lbs — log your weight each Day A to track progress</span>
+          </div>
+        </div>` : ''}
+
         <table class="exercise-table" id="table-${dayKey}">
           <thead>
             <tr>
@@ -1065,6 +1068,7 @@ function renderWorkouts() {
 
   container.innerHTML = html;
   document.getElementById("currentWeekDisplay").textContent = week;
+  updateCurrentWeight();
 }
 
 function toggleDay(dayKey) {
@@ -1072,11 +1076,12 @@ function toggleDay(dayKey) {
   const diff = document.getElementById(`diff-${dayKey}`);
   const adj = document.getElementById(`adj-${dayKey}`);
   const chevron = document.getElementById(`chevron-${dayKey}`);
-  const isOpen = table.classList.contains('open');
+  const weighin = document.getElementById(`weighin-${dayKey}`);
 
   table.classList.toggle('open');
   diff.classList.toggle('open');
   if (adj) adj.classList.toggle('open');
+  if (weighin) weighin.style.display = table.classList.contains('open') ? 'block' : 'none';
   chevron.classList.toggle('open');
 }
 
@@ -1085,6 +1090,27 @@ function changeWeek(delta) {
   saveStateQuiet();
   renderWorkouts();
   renderProgress();
+}
+
+function logWeighIn(logKey, value) {
+  if (!state.logs[logKey]) state.logs[logKey] = { difficulty: 0, sets: {}, date: new Date().toISOString().split('T')[0] };
+  state.logs[logKey].bodyWeight = value ? parseFloat(value) : null;
+  saveStateQuiet();
+  updateCurrentWeight();
+}
+
+function updateCurrentWeight() {
+  const el = document.getElementById("currentWeightDisplay");
+  if (!el) return;
+  // Find the most recent Day A weigh-in
+  for (let w = 16; w >= 1; w--) {
+    const log = state.logs[`W${w}-A`];
+    if (log && log.bodyWeight) {
+      el.textContent = log.bodyWeight + " lbs";
+      return;
+    }
+  }
+  el.textContent = "—";
 }
 
 function logSet(logKey, exerciseName, setIdx, field, value) {
