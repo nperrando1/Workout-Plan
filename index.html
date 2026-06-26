@@ -180,7 +180,7 @@
   .chevron { transition: transform 0.2s; font-size: 18px; }
   .chevron.open { transform: rotate(90deg); }
 
-  /* Exercise Table */
+  /* Exercise Table (desktop) */
   .exercise-table {
     width: 100%;
     border-collapse: collapse;
@@ -205,6 +205,56 @@
     vertical-align: top;
   }
   .exercise-table tr:last-child td { border-bottom: none; }
+
+  /* Exercise Cards (mobile) */
+  .exercise-cards { display: none; }
+  .exercise-cards.open { display: block; }
+  .exercise-card {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .exercise-card:last-child { border-bottom: none; }
+  .exercise-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .exercise-card-rx {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .exercise-card-inputs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .input-group-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  .input-pair {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .input-pair .x-label {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
   .exercise-name { font-weight: 600; }
   .exercise-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
   .muscle-tag {
@@ -222,10 +272,10 @@
     background: var(--surface-2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 6px 10px;
+    padding: 6px 8px;
     border-radius: 6px;
-    width: 60px;
-    font-size: 13px;
+    width: 56px;
+    font-size: 14px;
     text-align: center;
   }
   .log-input:focus { border-color: var(--accent); outline: none; }
@@ -461,16 +511,18 @@
 
   /* Responsive */
   @media (max-width: 600px) {
-    .container { padding: 12px; }
+    .container { padding: 10px; }
     .header h1 { font-size: 22px; }
-    .profile-card { grid-template-columns: repeat(3, 1fr); }
-    .exercise-table th, .exercise-table td { padding: 8px 12px; }
-    .log-input { width: 50px; }
+    .profile-card { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 14px; }
+    .exercise-table.open { display: none; }
+    .exercise-cards.open { display: block; }
+    .log-input { width: 52px; font-size: 15px; padding: 8px 4px; }
     .tabs { gap: 2px; }
     .tab { padding: 8px 10px; font-size: 12px; }
     .day-tab { padding: 8px 8px; font-size: 12px; }
     .schedule-grid { grid-template-columns: repeat(7, 1fr); gap: 2px; }
     .schedule-cell { padding: 6px 4px; min-height: 55px; }
+    .diff-btn { padding: 10px 8px; font-size: 12px; min-width: 60px; }
   }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1049,6 +1101,7 @@ function renderWorkouts() {
     </div>
   </div>`;
 
+  // Desktop: table layout
   html += `<table class="exercise-table open">
     <thead><tr>
       <th>Exercise</th>
@@ -1083,8 +1136,41 @@ function renderWorkouts() {
       <td>${repInputs}</td>
     </tr>`;
   }
+  html += `</tbody></table>`;
 
-  html += `</tbody></table>
+  // Mobile: card layout
+  html += `<div class="exercise-cards open">`;
+  for (const ex of day.exercises) {
+    const rx = ex.phases[phaseIdx];
+    const savedSets = log.sets && log.sets[ex.name] ? log.sets[ex.name] : [];
+
+    let setInputs = '';
+    for (let s = 0; s < rx.sets; s++) {
+      const sv = savedSets[s] || {};
+      setInputs += `<div class="input-group">
+        <div class="input-group-label">Set ${s + 1}</div>
+        <div class="input-pair">
+          <input type="number" class="log-input" placeholder="lbs" value="${sv.weight || ''}" 
+            onchange="logSet('${logKey}','${ex.name}',${s},'weight',this.value)" min="0" step="2.5">
+          <span class="x-label">&times;</span>
+          <input type="number" class="log-input" placeholder="reps" value="${sv.reps || ''}" 
+            onchange="logSet('${logKey}','${ex.name}',${s},'reps',this.value)" min="0">
+        </div>
+      </div>`;
+    }
+
+    html += `<div class="exercise-card">
+      <div class="exercise-card-header">
+        <div>
+          <div class="exercise-name">${ex.name}</div>
+          <span class="muscle-tag">${ex.muscle}</span>
+        </div>
+        <div class="exercise-card-rx">${rx.sets} &times; ${rx.reps}<br><span style="font-size:11px;color:var(--text-muted);font-weight:400;">Rest: ${rx.rest}</span></div>
+      </div>
+      <div class="exercise-card-inputs">${setInputs}</div>
+    </div>`;
+  }
+  html += `</div>`;
     <div class="difficulty-section open">
       <div class="difficulty-label">How difficult was this workout overall?</div>
       <div class="difficulty-buttons">
