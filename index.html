@@ -546,10 +546,12 @@
     <div class="profile-stat">
       <div class="label">Starting Weight</div>
       <div class="value" id="startingWeightDisplay">—</div>
+      <div class="label" id="startingWeightDate" style="font-size:11px;margin-top:2px;"></div>
     </div>
     <div class="profile-stat">
       <div class="label">Current Weight</div>
       <div class="value" id="currentWeightDisplay">—</div>
+      <div class="label" id="currentWeightDate" style="font-size:11px;margin-top:2px;"></div>
     </div>
     <div class="profile-stat">
       <div class="label">Current Week</div>
@@ -1374,25 +1376,36 @@ function updateCurrentWeight() {
   el.textContent = "—";
 }
 
+function formatDateShort(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 function updateWeightStats() {
   const startEl = document.getElementById("startingWeightDisplay");
+  const startDateEl = document.getElementById("startingWeightDate");
+  const curDateEl = document.getElementById("currentWeightDate");
   const lossEl = document.getElementById("totalWeightLoss");
   const pctEl = document.getElementById("weightLossPct");
   const data = state.bodyWeight || [];
 
   if (data.length === 0) {
     if (startEl) startEl.textContent = "—";
+    if (startDateEl) startDateEl.textContent = "";
+    if (curDateEl) curDateEl.textContent = "";
     if (lossEl) lossEl.textContent = "—";
     if (pctEl) pctEl.textContent = "—";
     return;
   }
 
-  const first = data[0].weight;
-  const latest = data[data.length - 1].weight;
-  const delta = latest - first;
-  const pct = ((delta / first) * 100).toFixed(1);
+  const firstEntry = data[0];
+  const latestEntry = data[data.length - 1];
+  const delta = latestEntry.weight - firstEntry.weight;
+  const pct = ((delta / firstEntry.weight) * 100).toFixed(1);
 
-  if (startEl) startEl.textContent = first + " lbs";
+  if (startEl) startEl.textContent = firstEntry.weight + " lbs";
+  if (startDateEl) startDateEl.textContent = formatDateShort(firstEntry.date);
+  if (curDateEl) curDateEl.textContent = formatDateShort(latestEntry.date);
   if (lossEl) {
     const sign = delta <= 0 ? '' : '+';
     lossEl.textContent = sign + delta.toFixed(1) + " lbs";
