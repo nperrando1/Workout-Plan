@@ -14,7 +14,7 @@ A self-contained, single-file HTML strength training dashboard for a user return
 
 - **Height:** 5'10", **Starting Weight:** 268.5 lbs
 - **Current activity:** Walking 3-4 mi 5x/week, hiking 4-8 mi on Saturdays
-- **Gym access:** Planet Fitness (Smith machines, cables, dumbbells, machines — no free barbells/squat racks)
+- **Gym access:** Planet Fitness (cables, dumbbells up to 75 lb, plate-loaded machines — no free barbells/squat racks/Smith machines)
 - **Goals:**
   - **Lower body:** Strength for hiking harder trails
   - **Upper body:** Aesthetic physique
@@ -64,12 +64,12 @@ Firebase initialization is wrapped in a try/catch. If the SDK scripts fail to lo
 | Performance | 13-16 | 3-4 | 6-8 | 90s |
 
 ### Adaptive Difficulty System (Per-Exercise)
-After each exercise, the user rates difficulty 1-5 via inline buttons. Ratings are stored per-exercise in the `difficulty` object (keyed by exercise name). The app displays per-exercise adjustment recommendations the following week:
-- **1 (Too Easy):** Increase weight 5-10 lbs
-- **2 (Moderate):** Small increase (+2.5-5 lbs)
-- **3 (Just Right):** Repeat same weight/reps
-- **4 (Hard):** Same weight, fewer reps
-- **5 (Too Hard):** Reduce weight 5-10 lbs
+After each exercise, the user rates difficulty 1-5 via inline buttons. Ratings are stored per-exercise in the `difficulty` object (keyed by exercise name). The Exercise Guide tab includes descriptive context for each rating level (what it should feel like physically) along with the adjustment recommendation:
+- **1 (Too Easy):** Could do 5+ more reps easily → Increase weight
+- **2 (Moderate):** 2-3 reps left in the tank → Small increase (+2.5-5 lbs)
+- **3 (Just Right):** 1-2 reps left, last rep tough but clean → Repeat same weight/reps
+- **4 (Hard):** Barely finished, form breaking down → Same weight, fewer reps
+- **5 (Too Hard):** Couldn't complete all reps → Reduce weight
 
 A day is "complete" when all exercises in that day have been rated. Day tab checkmarks and the Progress tab use `isDayComplete()` to check this.
 
@@ -93,7 +93,7 @@ Each exercise has an optional `inputType` field:
     "W1-A": {              // Key format: W{week}-{day}
       difficulty: {         // Per-exercise ratings (object keyed by exercise name)
         "Goblet Squat (Dumbbell)": 3,
-        "Smith Machine Romanian Deadlift": 2,
+        "Dumbbell Romanian Deadlift": 2,
         // ...one entry per exercise
       },
       date: "2026-06-26",
@@ -180,7 +180,8 @@ Each exercise object in the `PROGRAM` constant:
 
 ```javascript
 {
-  name: "Smith Machine Bench Press",
+  name: "Dumbbell Bench Press (Flat)",
+  video: "YwrzZaNqJWU",                       // YouTube video ID (optional)
   muscle: "Chest, Front Delts, Triceps",
   purpose: "How this builds your physique",   // or "Why this matters for hiking"
   startWeight: "Bar only or +10-20 lbs",      // Shown weeks 1-2 only
@@ -199,6 +200,27 @@ Each exercise object in the `PROGRAM` constant:
 **Key design decisions on `note` vs `guide`:**
 - `note` — Outcome-only (no form cues). Displayed in the Exercise Guide highlight box under "Why this matters for hiking" or "How this builds your physique" depending on `purpose`.
 - `guide` — Full step-by-step form instructions. Only shown in the Exercise Guide tab's collapsible sections.
+
+---
+
+## Exercise Form Videos
+
+Each exercise in the `PROGRAM` constant has an optional `video` property containing a YouTube video ID (the `v=` parameter value). All 22 exercises currently have videos sourced from trusted fitness channels (ScottHermanFitness, PureGym, ATHLEAN-X, Buff Dudes, Bodybuilding.com, etc.).
+
+### How It Works
+- In the Exercise Guide tab, `renderGuide()` conditionally renders a "Watch Form Video" button below each exercise's highlight box when a `video` ID is present.
+- Clicking the button calls `toggleVideo(id)`, which shows/hides a responsive 16:9 iframe container and swaps the button text to "Hide Video".
+- Iframes use `loading="lazy"` so they don't load until the user expands them — no performance impact on page load.
+- The embed URL includes `?rel=0` to suppress YouTube's related video suggestions.
+- Video container IDs are derived from the exercise name with non-alphanumeric characters stripped (e.g., `vid-GobletSquatDumbbell`).
+
+### Styling
+- `.video-toggle` — Small secondary button matching the floral theme (blue accent, hover fills solid)
+- `.video-container` — Responsive 16:9 wrapper using the `padding-bottom: 56.25%` aspect ratio technique
+- `.video-container iframe` — Absolute positioned to fill the container, no border
+
+### Adding/Changing Videos
+To swap a video, change the `video` property on the exercise object to a different YouTube video ID. To remove a video, delete the `video` property — the button won't render.
 
 ---
 
@@ -255,7 +277,7 @@ When the user logs a weigh-in via the Save button on any workout day:
 
 ## Known Constraints
 
-1. **Planet Fitness equipment only** — No barbells, no squat racks, no power racks. Program uses Smith machines, cables, dumbbells, and plate-loaded machines only.
+1. **Planet Fitness equipment only** — No barbells, no squat racks, no power racks, no Smith machines. Program uses cables, dumbbells (up to 75 lb), and plate-loaded machines only.
 2. **Firebase auth is open** — The database has public read/write rules. Acceptable for a single-user personal project but would need auth if shared.
 3. **Single-file architecture** — All ~1,790 lines live in one HTML file. If the app grows significantly, consider splitting into separate CSS/JS files.
 4. **Corporate proxy** — GitHub Pages works fine, but any backend that requires cross-origin requests to Google domains may be blocked by Zscaler on the user's work network.

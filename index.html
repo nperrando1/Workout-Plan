@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Strength Training Plan — Phillip Richardson</title>
 <style>
   :root {
@@ -499,6 +500,37 @@
     .day-tab { padding: 8px 8px; font-size: 12px; }
     .ex-rate-btn { width: 32px; height: 32px; font-size: 13px; line-height: 32px; }
   }
+
+  /* Video Toggle & Embed */
+  .video-toggle {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 14px;
+    background: var(--blue-dim);
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .video-toggle:hover { background: var(--blue); color: #fff; }
+  .video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    margin-top: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .video-container iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -635,7 +667,7 @@ const PHASES = [
   { name: "Performance", weeks: [13,14,15,16], description: "Peak intensity with hiking-specific power work. Prepare for harder trails." }
 ];
 
-// Planet Fitness equipment: machines, dumbbells (up to 75lb), Smith machine, cables, bodyweight
+// Planet Fitness equipment: machines, dumbbells (up to 75lb), cables, bodyweight
 const PROGRAM = {
   // DAY A: Lower Body + Core (hiking priority)
   A: {
@@ -644,6 +676,7 @@ const PROGRAM = {
     exercises: [
       {
         name: "Goblet Squat (Dumbbell)",
+        video: "Xjo_fY9Hl9w",
         muscle: "Quads, Glutes",
         purpose: "Why this matters for hiking",
         startWeight: "20-30 lb dumbbell",
@@ -652,16 +685,18 @@ const PROGRAM = {
         guide: "Stand shoulder-width apart, hold a dumbbell vertically against your chest with both hands. Push hips back, bend knees, lower until thighs are at least parallel. Drive through heels to stand. Keep your torso upright throughout."
       },
       {
-        name: "Smith Machine Romanian Deadlift",
+        name: "Dumbbell Romanian Deadlift",
+        video: "GSPs7-c_sf0",
         muscle: "Hamstrings, Glutes, Lower Back",
         purpose: "Why this matters for hiking",
-        startWeight: "Bar only or +10-20 lbs",
+        startWeight: "20-30 lb dumbbells",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
         note: "Develops the hamstring and glute strength that controls your descent on steep downhills and protects your knees under load.",
-        guide: "Stand in the Smith machine with feet hip-width apart. Unhook the bar at hip height. With a slight bend in your knees (keep them fixed), hinge at the hips pushing your butt back. Lower the bar along your thighs until you feel a deep hamstring stretch (mid-shin area). Squeeze glutes to return to standing."
+        guide: "Stand with feet hip-width apart, holding a dumbbell in each hand in front of your thighs with palms facing you. With a slight bend in your knees (keep them fixed), hinge at the hips pushing your butt back. Lower the dumbbells along your thighs until you feel a deep hamstring stretch (mid-shin area). Squeeze glutes to return to standing. The dumbbells will naturally hang closer to your body than a bar — let them track along your legs."
       },
       {
         name: "Leg Press Machine",
+        video: "p5dCqF7wWUw",
         muscle: "Quads, Glutes",
         purpose: "Why this matters for hiking",
         startWeight: "90-135 lbs",
@@ -671,6 +706,7 @@ const PROGRAM = {
       },
       {
         name: "Dumbbell Walking Lunges",
+        video: "Pbmj6xPo-Hw",
         muscle: "Quads, Glutes, Balance",
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight or 10-15 lb dumbbells",
@@ -679,16 +715,18 @@ const PROGRAM = {
         guide: "Hold dumbbells at your sides. Take a big step forward, lower your back knee toward the floor until both knees form ~90 degree angles. Push off your front foot to step forward into the next lunge. Alternate legs. Keep your torso upright and core tight."
       },
       {
-        name: "Standing Calf Raises (Smith Machine)",
+        name: "Dumbbell Standing Calf Raises",
+        video: "wxwY7GXxL4k",
         muscle: "Calves",
         purpose: "Why this matters for hiking",
-        startWeight: "Bar only or +10-20 lbs",
+        startWeight: "25-40 lb dumbbells",
         phases: {1:{sets:3,reps:"15-20",rest:"45s"},2:{sets:3,reps:"15-20",rest:"45s"},3:{sets:4,reps:"12-15",rest:"45s"},4:{sets:4,reps:"12-15",rest:"45s"}},
         note: "Strong calves prevent fatigue and cramping on steep inclines and give you sure footing on rocky, uneven surfaces.",
-        guide: "Place the bar across your shoulders in the Smith machine. Stand on a step or plate with just the balls of your feet. Lower heels below the step for a full stretch, then rise up onto your toes as high as possible. Pause at the top for 1 second."
+        guide: "Hold a dumbbell in each hand at your sides. Stand on a step or weight plate with just the balls of your feet, heels hanging off the edge. Lower your heels below the step for a full stretch, then rise up onto your toes as high as possible. Pause at the top for 1 second. If balance is an issue, hold one dumbbell and use your free hand on a wall or machine for support."
       },
       {
         name: "Cable Woodchops",
+        video: "gVtsBWJz6N4",
         muscle: "Core, Obliques",
         purpose: "Why this matters for hiking",
         startWeight: "15-25 lbs",
@@ -698,6 +736,7 @@ const PROGRAM = {
       },
       {
         name: "Plank Hold",
+        video: "htqqk_uojIs",
         muscle: "Core",
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight",
@@ -714,16 +753,18 @@ const PROGRAM = {
     badge: "upper",
     exercises: [
       {
-        name: "Smith Machine Bench Press",
+        name: "Dumbbell Bench Press (Flat)",
+        video: "YwrzZaNqJWU",
         muscle: "Chest, Front Delts, Triceps",
         purpose: "How this builds your physique",
-        startWeight: "Bar only or +10-20 lbs",
+        startWeight: "20-30 lb dumbbells",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "The foundation of a fuller, more defined chest. Develops the thick, squared-off pec look that's visible in any shirt.",
-        guide: "Lie on the bench under the Smith machine. Grip the bar slightly wider than shoulder-width. Unhook and lower the bar to mid-chest with control (2-3 seconds down). Press up explosively. The Smith machine guides the bar path, so focus on squeezing your chest at the top."
+        note: "The foundation of a fuller, more defined chest. Dumbbells allow a deeper stretch at the bottom than a bar, activating more muscle fibers for a thicker, more complete chest.",
+        guide: "Lie flat on a bench with a dumbbell in each hand at chest level, palms facing forward. Press the dumbbells up until arms are fully extended, bringing them slightly together at the top without clanking. Lower slowly (2-3 seconds) until your elbows are just below bench level — this deeper range of motion is the advantage over a barbell. Keep your feet flat on the floor and maintain a slight natural arch in your lower back."
       },
       {
         name: "Seated Cable Row",
+        video: "GZbfZ033f74",
         muscle: "Mid Back, Lats, Biceps",
         purpose: "How this builds your physique",
         startWeight: "40-60 lbs",
@@ -733,6 +774,7 @@ const PROGRAM = {
       },
       {
         name: "Dumbbell Overhead Press (Seated)",
+        video: "E9ShwbwZ1zw",
         muscle: "Shoulders, Triceps",
         purpose: "How this builds your physique",
         startWeight: "15-20 lb dumbbells",
@@ -742,6 +784,7 @@ const PROGRAM = {
       },
       {
         name: "Lat Pulldown Machine",
+        video: "SALxEARiMkw",
         muscle: "Lats, Upper Back, Biceps",
         purpose: "How this builds your physique",
         startWeight: "50-70 lbs",
@@ -751,6 +794,7 @@ const PROGRAM = {
       },
       {
         name: "Dumbbell Incline Press",
+        video: "ou6s32mJgjU",
         muscle: "Upper Chest, Shoulders",
         purpose: "How this builds your physique",
         startWeight: "15-25 lb dumbbells",
@@ -760,6 +804,7 @@ const PROGRAM = {
       },
       {
         name: "Cable Face Pulls",
+        video: "0Po47vvj9g4",
         muscle: "Rear Delts, Rotator Cuff",
         purpose: "How this builds your physique",
         startWeight: "15-25 lbs",
@@ -769,6 +814,7 @@ const PROGRAM = {
       },
       {
         name: "Dumbbell Bicep Curls",
+        video: "629tfTQ1MEk",
         muscle: "Biceps",
         purpose: "How this builds your physique",
         startWeight: "10-20 lb dumbbells",
@@ -778,6 +824,7 @@ const PROGRAM = {
       },
       {
         name: "Tricep Pushdowns (Cable)",
+        video: "2-LAMcpzODU",
         muscle: "Triceps",
         purpose: "How this builds your physique",
         startWeight: "20-30 lbs",
@@ -793,16 +840,18 @@ const PROGRAM = {
     badge: "full",
     exercises: [
       {
-        name: "Smith Machine Squat",
-        muscle: "Quads, Glutes",
+        name: "Dumbbell Sumo Squat",
+        video: "daK6R6Y6fcU",
+        muscle: "Quads, Glutes, Inner Thighs",
         purpose: "Why this matters for hiking",
-        startWeight: "Bar only or +10-20 lbs",
+        startWeight: "30-40 lb dumbbell",
         phases: {1:{sets:3,reps:"12-15",rest:"60s"},2:{sets:3,reps:"10-12",rest:"75s"},3:{sets:4,reps:"8-10",rest:"90s"},4:{sets:4,reps:"6-8",rest:"90s"}},
-        note: "Builds quad and glute strength for powerful uphill drives and the leg endurance to keep pace on long ascents.",
-        guide: "Position the bar across your upper traps. Place feet shoulder-width, slightly IN FRONT of the bar (unlike a free squat). This is safe and intentional in a Smith machine. Squat down until thighs are parallel or slightly below. Drive up through your heels."
+        note: "Builds a wider base of support and lateral stability — the inner thigh and glute strength that keeps you stable on uneven terrain and side-slope traversals.",
+        guide: "Stand with feet wide (1.5x shoulder-width), toes pointed out at 45 degrees. Hold a single dumbbell vertically with both hands, arms hanging straight down between your legs. Push hips back and bend knees, lowering until thighs are parallel to the floor. Drive through your heels to stand. Keep your torso upright and chest proud throughout — don't lean forward."
       },
       {
         name: "Dumbbell Step-Ups (to bench)",
+        video: "aKj-6hgiViA",
         muscle: "Quads, Glutes, Balance",
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight or 10-15 lb dumbbells",
@@ -812,6 +861,7 @@ const PROGRAM = {
       },
       {
         name: "Leg Curl Machine",
+        video: "T5b-A46ln3Q",
         muscle: "Hamstrings",
         purpose: "Why this matters for hiking",
         startWeight: "40-60 lbs",
@@ -821,6 +871,7 @@ const PROGRAM = {
       },
       {
         name: "Dumbbell Lateral Raises",
+        video: "WJm9zA2NY8E",
         muscle: "Side Delts",
         purpose: "How this builds your physique",
         startWeight: "10-15 lb dumbbells",
@@ -830,6 +881,7 @@ const PROGRAM = {
       },
       {
         name: "Cable Chest Flyes",
+        video: "Iwe6AmxVf7o",
         muscle: "Chest",
         purpose: "How this builds your physique",
         startWeight: "10-20 lbs per side",
@@ -839,6 +891,7 @@ const PROGRAM = {
       },
       {
         name: "Dumbbell Shrugs",
+        video: "cJRVVxmytaM",
         muscle: "Upper Traps",
         purpose: "Why this matters for hiking",
         startWeight: "25-40 lb dumbbells",
@@ -848,6 +901,7 @@ const PROGRAM = {
       },
       {
         name: "Dead Bug",
+        video: "JrcoGEZn6L4",
         muscle: "Core, Stability",
         purpose: "Why this matters for hiking",
         startWeight: "Bodyweight",
@@ -1573,12 +1627,17 @@ function renderGuide() {
         This is a <strong style="color:var(--text);">16-week progressive program</strong> divided into 4 phases. Each phase automatically adjusts the number of sets, reps, and rest periods. Rate each exercise individually from 1-5 after your sets. The app will display personalized adjustment recommendations per exercise the following week.
       </p>
       <div class="highlight-box" style="background:var(--accent-dim);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-top:12px;">
-        <strong>Rate each exercise 1-5 after your sets:</strong><br>
-        <strong>1 (Too Easy)</strong> = Increase weight next week<br>
-        <strong>2 (Moderate)</strong> = Small increase next week<br>
-        <strong>3 (Just Right)</strong> = Repeat same weight/reps<br>
-        <strong>4 (Hard)</strong> = Same weight, fewer reps<br>
-        <strong>5 (Too Hard)</strong> = Reduce weight next week
+        <strong>Rate each exercise 1-5 after your sets:</strong><br><br>
+        <strong>1 (Too Easy)</strong> — Could have done 5+ more reps with good form. Barely felt the muscle working.<br>
+        <span style="color:var(--green);font-size:12px;">&#8594; Increase weight next week</span><br><br>
+        <strong>2 (Moderate)</strong> — Had 2-3 reps left in the tank. Felt the muscle but wasn't challenged.<br>
+        <span style="color:var(--green);font-size:12px;">&#8594; Small increase next week (+2.5-5 lbs)</span><br><br>
+        <strong>3 (Just Right)</strong> — Could have done 1-2 more reps max. Last rep was tough but form stayed clean.<br>
+        <span style="color:var(--yellow);font-size:12px;">&#8594; Repeat same weight/reps</span><br><br>
+        <strong>4 (Hard)</strong> — Barely finished the last rep. Form started to break down.<br>
+        <span style="color:var(--red);font-size:12px;">&#8594; Same weight, fewer reps</span><br><br>
+        <strong>5 (Too Hard)</strong> — Couldn't complete all reps, or had to cheat/use momentum to finish.<br>
+        <span style="color:var(--red);font-size:12px;">&#8594; Reduce weight next week</span>
       </div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;">
@@ -1593,8 +1652,8 @@ function renderGuide() {
           <td style="padding:8px 0;color:var(--text-muted);">20-30 lb dumbbell</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 0;font-weight:600;">Smith RDL</td>
-          <td style="padding:8px 0;color:var(--text-muted);">Bar only or +10-20 lbs</td>
+          <td style="padding:8px 0;font-weight:600;">Dumbbell RDL</td>
+          <td style="padding:8px 0;color:var(--text-muted);">20-30 lb dumbbells</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 0;font-weight:600;">Leg Press</td>
@@ -1605,8 +1664,8 @@ function renderGuide() {
           <td style="padding:8px 0;color:var(--text-muted);">Bodyweight or 10-15 lb dumbbells</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:8px 0;font-weight:600;">Smith Bench Press</td>
-          <td style="padding:8px 0;color:var(--text-muted);">Bar only or +10-20 lbs</td>
+          <td style="padding:8px 0;font-weight:600;">Dumbbell Bench Press</td>
+          <td style="padding:8px 0;color:var(--text-muted);">20-30 lb dumbbells</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 0;font-weight:600;">Cable Rows</td>
@@ -1624,9 +1683,17 @@ function renderGuide() {
           <td style="padding:8px 0;font-weight:600;">Lateral Raises</td>
           <td style="padding:8px 0;color:var(--text-muted);">10-15 lb dumbbells</td>
         </tr>
-        <tr>
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 0;font-weight:600;">Curls / Pushdowns</td>
           <td style="padding:8px 0;color:var(--text-muted);">10-20 lbs</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 0;font-weight:600;">Sumo Squat</td>
+          <td style="padding:8px 0;color:var(--text-muted);">30-40 lb dumbbell</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;font-weight:600;">Calf Raises</td>
+          <td style="padding:8px 0;color:var(--text-muted);">25-40 lb dumbbells</td>
         </tr>
       </table>
       <p style="font-size:13px;color:var(--text-muted);margin-top:12px;">
@@ -1653,6 +1720,10 @@ function renderGuide() {
           <div class="highlight-box" style="margin-top:8px;font-size:13px;">
             <strong>${ex.purpose || "Why this matters"}:</strong> ${ex.note}
           </div>
+          ${ex.video ? `<button class="video-toggle" onclick="toggleVideo('vid-${ex.name.replace(/[^a-zA-Z0-9]/g,'')}')">Watch Form Video</button>
+          <div class="video-container" id="vid-${ex.name.replace(/[^a-zA-Z0-9]/g,'')}" style="display:none;">
+            <iframe data-src="https://www.youtube.com/embed/${ex.video}?rel=0" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+          </div>` : ''}
         </div>`;
     }
 
@@ -1708,6 +1779,22 @@ function toggleGuide(id) {
   const chevron = document.getElementById(`guide-chevron-${dayKey}`);
   body.classList.toggle('open');
   chevron.classList.toggle('open');
+}
+
+function toggleVideo(id) {
+  const el = document.getElementById(id);
+  const btn = el.previousElementSibling;
+  if (el.style.display === 'none') {
+    const iframe = el.querySelector('iframe');
+    if (iframe && !iframe.src && iframe.dataset.src) {
+      iframe.src = iframe.dataset.src;
+    }
+    el.style.display = 'block';
+    btn.textContent = 'Hide Video';
+  } else {
+    el.style.display = 'none';
+    btn.textContent = 'Watch Form Video';
+  }
 }
 
 // ========== TABS ==========
