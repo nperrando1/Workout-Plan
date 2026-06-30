@@ -1219,17 +1219,17 @@ function renderWorkouts() {
       const sv = savedSets[s] || {};
       if (iType === "weighted") {
         weightInputs += `<input type="number" inputmode="decimal" class="log-input" placeholder="—" value="${sv.weight || ''}" 
-          onchange="logSet('${logKey}','${ex.name}',${s},'weight',this.value)" min="0" step="2.5">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="weight" min="0" step="2.5">`;
         repInputs += `<input type="number" inputmode="numeric" class="log-input" placeholder="—" value="${sv.reps || ''}" 
-          onchange="logSet('${logKey}','${ex.name}',${s},'reps',this.value)" min="0">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">`;
       } else if (iType === "timed") {
         weightInputs += `<span class="log-input" style="display:inline-block;color:var(--text-muted);border-color:transparent;background:transparent;">—</span>`;
         repInputs += `<input type="number" inputmode="numeric" class="log-input" placeholder="sec" value="${sv.reps || ''}" 
-          onchange="logSet('${logKey}','${ex.name}',${s},'reps',this.value)" min="0">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">`;
       } else {
         weightInputs += `<span class="log-input" style="display:inline-block;color:var(--text-muted);border-color:transparent;background:transparent;">—</span>`;
         repInputs += `<input type="number" inputmode="numeric" class="log-input" placeholder="reps" value="${sv.reps || ''}" 
-          onchange="logSet('${logKey}','${ex.name}',${s},'reps',this.value)" min="0">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">`;
       }
       if (s < rx.sets - 1) { weightInputs += ' '; repInputs += ' '; }
     }
@@ -1274,10 +1274,10 @@ function renderWorkouts() {
           <div class="input-group-label">Set ${s + 1}</div>
           <div class="input-pair">
             <input type="number" inputmode="decimal" class="log-input" placeholder="lbs" value="${sv.weight || ''}" 
-              onchange="logSet('${logKey}','${ex.name}',${s},'weight',this.value)" min="0" step="2.5">
+              data-ex="${ex.name}" data-set="${s}" data-field="weight" min="0" step="2.5">
             <span class="x-label">&times;</span>
             <input type="number" inputmode="numeric" class="log-input" placeholder="reps" value="${sv.reps || ''}" 
-              onchange="logSet('${logKey}','${ex.name}',${s},'reps',this.value)" min="0">
+              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">
           </div>
         </div>`;
       } else if (iTypeMobile === "timed") {
@@ -1285,7 +1285,7 @@ function renderWorkouts() {
           <div class="input-group-label">Set ${s + 1}</div>
           <div class="input-pair">
             <input type="number" inputmode="numeric" class="log-input" placeholder="sec" value="${sv.reps || ''}" 
-              onchange="logSet('${logKey}','${ex.name}',${s},'reps',this.value)" min="0">
+              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">
           </div>
         </div>`;
       } else {
@@ -1293,7 +1293,7 @@ function renderWorkouts() {
           <div class="input-group-label">Set ${s + 1}</div>
           <div class="input-pair">
             <input type="number" inputmode="numeric" class="log-input" placeholder="reps" value="${sv.reps || ''}" 
-              onchange="logSet('${logKey}','${ex.name}',${s},'reps',this.value)" min="0">
+              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">
           </div>
         </div>`;
       }
@@ -1324,7 +1324,12 @@ function renderWorkouts() {
       </div>
     </div>`;
   }
-  html += `</div></div>`;
+  html += `</div>
+    <div style="padding:16px 20px;border-top:1px solid var(--border);text-align:center;">
+      <button class="btn-primary" style="padding:10px 32px;font-size:15px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:var(--accent);color:#fff;width:100%;max-width:320px;"
+        onclick="saveAllSets('${logKey}','${dayKey}')">Save Workout</button>
+    </div>
+  </div>`;
 
   container.innerHTML = html;
   document.getElementById("currentWeekDisplay").textContent = week;
@@ -1422,6 +1427,46 @@ function logSet(logKey, exerciseName, setIdx, field, value) {
   while (sets.length <= setIdx) sets.push({});
   sets[setIdx][field] = value ? parseFloat(value) : null;
   saveStateQuiet();
+}
+
+function getVisibleInput(exName, setIdx, field) {
+  const all = document.querySelectorAll(`[data-ex="${exName}"][data-set="${setIdx}"][data-field="${field}"]`);
+  for (const el of all) {
+    if (el.offsetParent !== null) return el;
+  }
+  return all[0] || null;
+}
+
+function saveAllSets(logKey, dayKey) {
+  const day = PROGRAM[dayKey];
+  if (!day) return;
+  if (!state.logs[logKey]) state.logs[logKey] = { difficulty: {}, sets: {}, date: new Date().toISOString().split('T')[0] };
+  if (!state.logs[logKey].sets) state.logs[logKey].sets = {};
+  state.logs[logKey].date = new Date().toISOString().split('T')[0];
+
+  const phaseIdx = getPhaseIndex(state.currentWeek);
+  for (const ex of day.exercises) {
+    const rx = ex.phases[phaseIdx];
+    const iType = ex.inputType || "weighted";
+    if (!state.logs[logKey].sets[ex.name]) state.logs[logKey].sets[ex.name] = [];
+    const sets = state.logs[logKey].sets[ex.name];
+
+    for (let s = 0; s < rx.sets; s++) {
+      while (sets.length <= s) sets.push({});
+      if (iType === "weighted") {
+        const wEl = getVisibleInput(ex.name, s, 'weight');
+        if (wEl && wEl.value) sets[s].weight = parseFloat(wEl.value);
+        else if (wEl && !wEl.value) sets[s].weight = null;
+      }
+      const rEl = getVisibleInput(ex.name, s, 'reps');
+      if (rEl && rEl.value) sets[s].reps = parseFloat(rEl.value);
+      else if (rEl && !rEl.value) sets[s].reps = null;
+    }
+  }
+
+  saveState();
+  renderWorkouts();
+  showToast("Workout saved!");
 }
 
 function rateExerciseDifficulty(logKey, exerciseName, rating) {
