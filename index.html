@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Strength Training Plan — Phillip Richardson</title>
+<title>Strength Training Plan — Nick Perrando</title>
 <style>
   :root {
     --bg: #141018;
@@ -539,7 +539,7 @@
 <div class="container">
   <div class="header">
     <h1>Strength Training Plan</h1>
-    <p>3 days/week &middot; ~45 min sessions &middot; Planet Fitness &middot; Adaptive progression</p>
+    <p>3 days/week &middot; ~45 min sessions &middot; Planet Fitness &middot; Adaptive progression &middot; Nick Perrando</p>
   </div>
 
   <div class="profile-card">
@@ -559,24 +559,20 @@
     </div>
   </div>
 
-  <!-- Sync Status -->
   <div class="sync-bar" id="syncBar">
     <span class="sync-dot offline" id="syncDot"></span>
     <span id="syncStatus">Connecting to Firebase...</span>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" data-tab="workouts">Workouts</button>
     <button class="tab" data-tab="progress">Progress</button>
     <button class="tab" data-tab="guide">Exercise Guide</button>
   </div>
 
-  <!-- WORKOUTS TAB -->
   <div class="tab-content active" id="tab-workouts"></div>
 
 
-  <!-- PROGRESS TAB -->
   <div class="tab-content" id="tab-progress">
     <div class="progress-grid">
       <div class="progress-card">
@@ -645,10 +641,8 @@
     </div>
   </div>
 
-  <!-- GUIDE TAB -->
   <div class="tab-content" id="tab-guide"></div>
 
-  <!-- Action bar -->
   <div class="action-bar">
     <button class="btn btn-sync" onclick="manualSync()">Sync Now</button>
     <button class="btn btn-secondary" onclick="exportData()">Export JSON</button>
@@ -917,7 +911,7 @@ const PROGRAM = {
 };
 
 // ========== STATE MANAGEMENT (Firebase + localStorage fallback) ==========
-const STORAGE_KEY = "strengthTrainingPlan_v1";
+const STORAGE_KEY = "strengthTrainingPlan_nick_v1";
 
 let db = null;
 let dbRef = null;
@@ -925,26 +919,14 @@ try {
   if (typeof firebase !== "undefined") {
     firebase.initializeApp({ databaseURL: "https://workout-plan-bba64-default-rtdb.firebaseio.com" });
     db = firebase.database();
-    dbRef = db.ref("workoutState");
+    dbRef = db.ref("workoutState_nick");
   }
 } catch(e) {
   console.warn("Firebase unavailable, running in offline mode:", e);
 }
 
-const SEED_WEIGHTS = [
-  {date:"2026-05-19",weight:283.6},{date:"2026-05-21",weight:282.1},{date:"2026-05-22",weight:280.3},
-  {date:"2026-05-23",weight:279.7},{date:"2026-05-24",weight:278.6},{date:"2026-05-25",weight:280.3},
-  {date:"2026-05-26",weight:280.5},{date:"2026-05-27",weight:279.0},{date:"2026-05-28",weight:279.1},
-  {date:"2026-05-29",weight:278.2},{date:"2026-05-30",weight:278.8},{date:"2026-05-31",weight:278.2},
-  {date:"2026-06-01",weight:278.2},{date:"2026-06-02",weight:278.4},{date:"2026-06-03",weight:278.2},
-  {date:"2026-06-04",weight:277.7},{date:"2026-06-05",weight:276.8},{date:"2026-06-06",weight:276.5},
-  {date:"2026-06-07",weight:276.7},{date:"2026-06-08",weight:276.8},{date:"2026-06-09",weight:276.5},
-  {date:"2026-06-10",weight:275.4},{date:"2026-06-11",weight:275.0},{date:"2026-06-12",weight:273.2},
-  {date:"2026-06-13",weight:272.4},{date:"2026-06-14",weight:274.9},{date:"2026-06-15",weight:274.3},
-  {date:"2026-06-16",weight:273.4},{date:"2026-06-17",weight:272.0},{date:"2026-06-18",weight:271.6},
-  {date:"2026-06-19",weight:270.2},{date:"2026-06-22",weight:271.4},{date:"2026-06-23",weight:273.6},
-  {date:"2026-06-24",weight:270.8},{date:"2026-06-25",weight:269.9},{date:"2026-06-26",weight:268.5}
-];
+// Resetting the seed array completely for Nick Perrando
+const SEED_WEIGHTS = [];
 
 function getDefaultState() {
   return {
@@ -1480,6 +1462,7 @@ function saveAllSets(logKey, dayKey) {
   }
 
   state._editing = false;
+  state._editing = false;
   saveState();
   renderWorkouts();
   showToast("Workout saved!");
@@ -1500,31 +1483,6 @@ function rateExerciseDifficulty(logKey, exerciseName, rating) {
   saveStateQuiet();
   renderWorkouts();
   renderProgress();
-}
-
-function isDayComplete(logKey, dayKey) {
-  const log = state.logs[logKey];
-  if (!log || typeof log.difficulty !== "object" || log.difficulty === null) return false;
-  const day = PROGRAM[dayKey];
-  if (!day) return false;
-  return day.exercises.every(ex => log.difficulty[ex.name] > 0);
-}
-
-function getDayAvgDifficulty(logKey, dayKey) {
-  const log = state.logs[logKey];
-  if (!log || typeof log.difficulty !== "object" || log.difficulty === null) return 0;
-  const day = PROGRAM[dayKey];
-  if (!day) return 0;
-  const ratings = day.exercises.map(ex => log.difficulty[ex.name] || 0).filter(r => r > 0);
-  if (ratings.length === 0) return 0;
-  return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
-}
-
-let _saveDebounceTimer = null;
-function saveStateQuiet() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stateForStorage()));
-  clearTimeout(_saveDebounceTimer);
-  _saveDebounceTimer = setTimeout(() => pushToCloud().catch(() => {}), 2000);
 }
 
 // ========== WEIGHT CHART ==========
@@ -1615,6 +1573,31 @@ function renderWeightChart() {
   </div>`;
 
   container.innerHTML = svg;
+}
+
+function isDayComplete(logKey, dayKey) {
+  const log = state.logs[logKey];
+  if (!log || typeof log.difficulty !== "object" || log.difficulty === null) return false;
+  const day = PROGRAM[dayKey];
+  if (!day) return false;
+  return day.exercises.every(ex => log.difficulty[ex.name] > 0);
+}
+
+function getDayAvgDifficulty(logKey, dayKey) {
+  const log = state.logs[logKey];
+  if (!log || typeof log.difficulty !== "object" || log.difficulty === null) return 0;
+  const day = PROGRAM[dayKey];
+  if (!day) return 0;
+  const ratings = day.exercises.map(ex => log.difficulty[ex.name] || 0).filter(r => r > 0);
+  if (ratings.length === 0) return 0;
+  return Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length);
+}
+
+let _saveDebounceTimer = null;
+function saveStateQuiet() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stateForStorage()));
+  clearTimeout(_saveDebounceTimer);
+  _saveDebounceTimer = setTimeout(() => pushToCloud().catch(() => {}), 2000);
 }
 
 // ========== PROGRESS ==========
