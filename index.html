@@ -990,8 +990,14 @@ function loadState() {
   return getDefaultState();
 }
 
+function stateForStorage() {
+  const copy = JSON.parse(JSON.stringify(state));
+  delete copy._editing;
+  return copy;
+}
+
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stateForStorage()));
   syncToCloud();
   showToast("Progress saved");
 }
@@ -1058,7 +1064,7 @@ async function syncToCloud() {
 async function pushToCloud() {
   if (!dbRef) return;
   try {
-    await dbRef.set(state);
+    await dbRef.set(stateForStorage());
     updateSyncUI("connected", "Saved — " + new Date().toLocaleTimeString());
   } catch(err) {
     updateSyncUI("error", "Save failed — data safe in browser");
@@ -1177,6 +1183,9 @@ function renderWorkouts() {
   const logKey = `W${week}-${dayKey}`;
   const log = state.logs[logKey] || {};
   const isComplete = isDayComplete(logKey, dayKey);
+  const hasSavedSets = log.sets && Object.keys(log.sets).length > 0;
+  const locked = hasSavedSets && !state._editing;
+  const readonlyAttr = locked ? 'readonly style="opacity:0.7;pointer-events:none;"' : '';
   const badgeClass = day.badge === "lower" ? "badge-lower" : day.badge === "upper" ? "badge-upper" : "badge-full";
   const diffObj = (typeof log.difficulty === "object" && log.difficulty !== null) ? log.difficulty : {};
 
@@ -1219,17 +1228,17 @@ function renderWorkouts() {
       const sv = savedSets[s] || {};
       if (iType === "weighted") {
         weightInputs += `<input type="number" inputmode="decimal" class="log-input" placeholder="—" value="${sv.weight || ''}" 
-          data-ex="${ex.name}" data-set="${s}" data-field="weight" min="0" step="2.5">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="weight" min="0" step="2.5" ${readonlyAttr}>`;
         repInputs += `<input type="number" inputmode="numeric" class="log-input" placeholder="—" value="${sv.reps || ''}" 
-          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0" ${readonlyAttr}>`;
       } else if (iType === "timed") {
         weightInputs += `<span class="log-input" style="display:inline-block;color:var(--text-muted);border-color:transparent;background:transparent;">—</span>`;
         repInputs += `<input type="number" inputmode="numeric" class="log-input" placeholder="sec" value="${sv.reps || ''}" 
-          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0" ${readonlyAttr}>`;
       } else {
         weightInputs += `<span class="log-input" style="display:inline-block;color:var(--text-muted);border-color:transparent;background:transparent;">—</span>`;
         repInputs += `<input type="number" inputmode="numeric" class="log-input" placeholder="reps" value="${sv.reps || ''}" 
-          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">`;
+          data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0" ${readonlyAttr}>`;
       }
       if (s < rx.sets - 1) { weightInputs += ' '; repInputs += ' '; }
     }
@@ -1274,10 +1283,10 @@ function renderWorkouts() {
           <div class="input-group-label">Set ${s + 1}</div>
           <div class="input-pair">
             <input type="number" inputmode="decimal" class="log-input" placeholder="lbs" value="${sv.weight || ''}" 
-              data-ex="${ex.name}" data-set="${s}" data-field="weight" min="0" step="2.5">
+              data-ex="${ex.name}" data-set="${s}" data-field="weight" min="0" step="2.5" ${readonlyAttr}>
             <span class="x-label">&times;</span>
             <input type="number" inputmode="numeric" class="log-input" placeholder="reps" value="${sv.reps || ''}" 
-              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">
+              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0" ${readonlyAttr}>
           </div>
         </div>`;
       } else if (iTypeMobile === "timed") {
@@ -1285,7 +1294,7 @@ function renderWorkouts() {
           <div class="input-group-label">Set ${s + 1}</div>
           <div class="input-pair">
             <input type="number" inputmode="numeric" class="log-input" placeholder="sec" value="${sv.reps || ''}" 
-              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">
+              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0" ${readonlyAttr}>
           </div>
         </div>`;
       } else {
@@ -1293,7 +1302,7 @@ function renderWorkouts() {
           <div class="input-group-label">Set ${s + 1}</div>
           <div class="input-pair">
             <input type="number" inputmode="numeric" class="log-input" placeholder="reps" value="${sv.reps || ''}" 
-              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0">
+              data-ex="${ex.name}" data-set="${s}" data-field="reps" min="0" ${readonlyAttr}>
           </div>
         </div>`;
       }
@@ -1326,8 +1335,12 @@ function renderWorkouts() {
   }
   html += `</div>
     <div style="padding:16px 20px;border-top:1px solid var(--border);text-align:center;">
-      <button class="btn-primary" style="padding:10px 32px;font-size:15px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:var(--accent);color:#fff;width:100%;max-width:320px;"
-        onclick="saveAllSets('${logKey}','${dayKey}')">Save Workout</button>
+      ${locked
+        ? `<button style="padding:10px 32px;font-size:15px;font-weight:600;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface-2);color:var(--text-muted);width:100%;max-width:320px;"
+            onclick="unlockWorkout()">Edit Workout</button>`
+        : `<button style="padding:10px 32px;font-size:15px;font-weight:600;border:none;border-radius:8px;cursor:pointer;background:var(--accent);color:#fff;width:100%;max-width:320px;"
+            onclick="saveAllSets('${logKey}','${dayKey}')">Save Workout</button>`
+      }
     </div>
   </div>`;
 
@@ -1339,11 +1352,13 @@ function renderWorkouts() {
 let activeDay = "A";
 function switchDay(dayKey) {
   activeDay = dayKey;
+  state._editing = false;
   renderWorkouts();
 }
 
 function changeWeek(delta) {
   state.currentWeek = Math.max(1, Math.min(16, state.currentWeek + delta));
+  state._editing = false;
   saveStateQuiet();
   renderWorkouts();
   renderProgress();
@@ -1464,9 +1479,15 @@ function saveAllSets(logKey, dayKey) {
     }
   }
 
+  state._editing = false;
   saveState();
   renderWorkouts();
   showToast("Workout saved!");
+}
+
+function unlockWorkout() {
+  state._editing = true;
+  renderWorkouts();
 }
 
 function rateExerciseDifficulty(logKey, exerciseName, rating) {
@@ -1501,7 +1522,7 @@ function getDayAvgDifficulty(logKey, dayKey) {
 
 let _saveDebounceTimer = null;
 function saveStateQuiet() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stateForStorage()));
   clearTimeout(_saveDebounceTimer);
   _saveDebounceTimer = setTimeout(() => pushToCloud().catch(() => {}), 2000);
 }
